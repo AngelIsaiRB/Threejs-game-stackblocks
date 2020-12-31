@@ -1,4 +1,4 @@
-import { Scene, Color, DirectionalLight, HemisphereLight, Group } from 'three';
+import { Scene, Color, DirectionalLight, HemisphereLight, Group, AxesHelper } from 'three';
 import Box from '../objects/Box';
 import BoxCreator from '../objects/BoxCreator';
 import { Cube } from '../objects/Cube';
@@ -30,16 +30,12 @@ class Scene1 extends Scene {
 			height:200,
 			last:this.baseCube
 		});
-		this.newBox({
-			width:200,
-			height:200,
-			last:this.getlastBox()
-		});
-		this.newBox({
-			width:200,
-			height:200,
-			last:this.getlastBox()
-		});
+		
+
+		//helpers
+
+		this.add(new AxesHelper(800));
+
 		// luces
 		const ambientLight = new HemisphereLight(0xffffbb, 0x080820, .5);
 		const light = new DirectionalLight(0xffffff, 1.0);
@@ -55,7 +51,7 @@ class Scene1 extends Scene {
 	}
 
 	update() {
-
+		this.getlastBox().update();
 	}
 }
 

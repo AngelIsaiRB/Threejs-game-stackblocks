@@ -8,10 +8,23 @@ class Box extends BoxCreator {
         this.last=last;
 
         this.position.y = last.position.y + last.geometry.parameters.height / 2 + this.geometry.parameters.height/2;
+        this.maxPosition = 360;
+        this.isStoped = false;
+        this.direction = 1;
+        this.velocity = 4;
+        this.actualAxis = (Math.random() >= 0.5)? "x":"z";
+        this.contaryAxis = (this.actualAxis === "x")?"z":"x";
+
+        this.position[this.actualAxis] -= this.maxPosition * this.direction;
 
     }
     update(){
-
+        if(!this.isStoped){
+            this.position[this.actualAxis] += this.direction  * this.velocity;
+            if(Math.abs(this.position[this.actualAxis]) >= this.maxPosition ){
+                this.direction *= -1;
+            }
+        }
     }
 }
 
