@@ -57,7 +57,37 @@ export class App {
 			.easing(TWEEN.Easing.Sinusoidal.In);		
 			camera_up.start();	
 		});
+
+		Observer.on(EVENTS.START,()=>{
+			this.camera_y = 300;
+			this.camera.position.set(10, 10+this.camera_y, 10);
+			this.camera.lookAt(0,this.camera_y,0);
+
+			const camera_zoom_in = new TWEEN.Tween(this.camera)
+			.to({
+				zoom:1
+			},900)
+			.easing(TWEEN.Easing.Sinusoidal.In)
+			.onUpdate(()=>{
+				this.camera.updateProjectionMatrix()
+			});
+			camera_zoom_in.start();
+		});
+
+		Observer.on(EVENTS.GAME_OVER,()=>{
+			const camera_zoom_out = new TWEEN.Tween(this.camera)
+			.to({
+				zoom:.6
+			},700)
+			.easing(TWEEN.Easing.Quadratic.Out)
+			.onUpdate(()=>{
+				this.camera.updateProjectionMatrix()
+			});
+			camera_zoom_out.start();
+		});
 	}	
+
+
 
 	onResize() {
 		this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);

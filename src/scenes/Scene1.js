@@ -5,11 +5,13 @@ import BoxCreator from '../objects/BoxCreator';
 import { Cube } from '../objects/Cube';
 import SliceBox from '../objects/SlicesBox';
 import Observer, { EVENTS } from '../Observer';
+import UserInterface from '../objects/UserInterface';
 
 
 class Scene1 extends Scene {
 	constructor() {
 		super();
+		const userInterface = new UserInterface();
 		this.background = new Color('skyblue').convertSRGBToLinear();
 		this.stackPoints=0;
 		this.gameOver= true;
@@ -32,17 +34,13 @@ class Scene1 extends Scene {
 		this.boxesGroup = new Group();
 		this.add(this.boxesGroup);
 
-		this.newBox({
-			width:200,
-			height:200,
-			last:this.baseCube
-		});
+		
 		
 		
 
 		//helpers
 
-		this.add(new AxesHelper(800));
+		// this.add(new AxesHelper(800));
 
 		// luces
 		const ambientLight = new HemisphereLight(0xffffbb, 0x080820, .5);
@@ -51,17 +49,31 @@ class Scene1 extends Scene {
 	}
 
 	events(){
+		Observer.emit(EVENTS.NEW_GAME);
 		Observer.on(EVENTS.CLICK,()=>{
-			this.getlastBox().place();
-			// this.newBox({
-			// 	width:200,
-			// 	height:200,
-			// 	last:this.getlastBox()
-			// })
+			if(this.gameOver){
+				Observer.emit(EVENTS.START);
+			}
+			else{
+				this.getlastBox().place();
+			}
+			
 		});
+
+		Observer.on(EVENTS.START,()=>{
+			this.resetGoup();
+			Observer.emit(EVENTS.UPDATE_POINTS,this.stackPoints)
+			this.newBox({
+				width:200,
+				height:200,
+				last:this.baseCube,
+			});
+			this.gameOver=false;
+		})
 
 		Observer.on(EVENTS.STACK,(newBox)=>{
 			this.stackPoints ++;
+			Observer.emit(EVENTS.UPDATE_POINTS,this.stackPoints);
 			// remover el bloque prinsiapl
 			this.boxesGroup.remove(this.getlastBox());
 			// espacio para cortar el bloque
@@ -99,7 +111,14 @@ class Scene1 extends Scene {
 
 		});
 		Observer.on(EVENTS.GAME_OVER,()=>{
-			console.log("game over")
+			if(!this.gameOver){
+				this.stackPoints=0;
+				const tween_gameover = new TWEEN.Tween(this.getlastBox().position)
+				.to({y:this.getlastBox().position.y+300},1000)
+				.easing(TWEEN.Easing.Bounce.Out);
+				tween_gameover.start();
+			}
+			this.gameOver=true;
 		});
 		
 		
@@ -109,14 +128,34 @@ class Scene1 extends Scene {
 		const actualBox = new Box({width, height,last});
 		this.boxesGroup.add(actualBox);
 	}
+
+	resetGoup(){
+		this.boxesGroup.children.map((box,i)=>{
+			const tween_destroy= new TWEEN.Tween(box.scale)
+			.to({
+				x:0.5,
+				y:0.5,
+				z:0.5,
+			},80*i)
+			.easing(TWEEN.Easing.Quadratic.Out)
+			.onComplete(()=>{
+				this.boxesGroup.remove(box);
+			});
+			tween_destroy.start();
+		})
+	}
+
 	getlastBox(){		
-		return this.boxesGroup.children[this.boxesGroup.children.length-1];
+		return this.boxesGroup.children[this.boxesGroup.children.length-1];		
 	}
 
 	update() {
-		this.getlastBox().update();
 		TWEEN.update();
+		if(!this.gameOver){
+			this.getlastBox().update();
+		}
 	}
+
 }
 
 export default Scene1;
