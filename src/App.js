@@ -14,8 +14,8 @@ export class App {
 			this.container.clientWidth/2,
 			this.container.clientHeight/2,
 			this.container.clientHeight/-2,
-			-1000,
-			1000
+			-10000,
+			10000
 
 		)
 		this.camera.position.set(10, 10, 10);
