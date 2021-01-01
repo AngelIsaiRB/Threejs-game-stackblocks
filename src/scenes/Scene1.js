@@ -76,6 +76,7 @@ class Scene1 extends Scene {
 				},500)
 				.easing(TWEEN.Easing.Quadratic.Out); 
 			tweenCut.start();
+			
 			actualBaseCut.getCut().material.transparent = true;
 			const tweenCutAlpha = new TWEEN.Tween(actualBaseCut.getCut().material)
 			.to({

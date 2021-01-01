@@ -1,10 +1,17 @@
-import { PerspectiveCamera, Vector3, WebGLRenderer, sRGBEncoding, OrthographicCamera } from 'three';
+import {WebGLRenderer, sRGBEncoding, OrthographicCamera } from 'three';
+import * as TWEEN from "@tweenjs/tween.js/dist/tween.amd";
+
 import Scene1 from './scenes/Scene1';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
+import Observer, { EVENTS } from './Observer';
 
 export class App {
 	constructor(container) {
 		this.container = container;
+
+		this.cameraPanUp=40;
+		this.camera_y = 300;
+
 
 		this.scene = new Scene1();
 
@@ -16,12 +23,11 @@ export class App {
 			this.container.clientHeight/-2,
 			-10000,
 			10000
-
 		)
-		this.camera.position.set(10, 10, 10);
-		this.camera.lookAt(0, 0, 0);
+		this.camera.position.set(10, 10+this.camera_y, 10);
+		this.camera.lookAt(0, this.camera_y, 0);
 
-		this.control = new OrbitControls(this.camera, this.container);
+		// this.control = new OrbitControls(this.camera, this.container);
 		// ## Renderer's config
 		this.renderer = new WebGLRenderer({
 			antialias: true,
@@ -37,7 +43,21 @@ export class App {
 		this.container.appendChild(this.renderer.domElement);
 		this.onResize();
 		this.render();
+		this.events();
 	}
+
+	events(){
+		Observer.on(EVENTS.STACK,()=>{
+			this.camera_y += this.cameraPanUp;
+
+			const camera_up = new TWEEN.Tween(this.camera.position)
+			.to({
+				y:10+this.camera_y
+			},500)
+			.easing(TWEEN.Easing.Sinusoidal.In);		
+			camera_up.start();	
+		});
+	}	
 
 	onResize() {
 		this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
@@ -50,7 +70,7 @@ export class App {
 
 	render() {
 		this.renderer.render(this.scene, this.camera);
-
+	
 		// Updates here
 		this.scene.update();
 
